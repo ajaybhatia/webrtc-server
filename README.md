@@ -1,4 +1,4 @@
-# rewebrtc-server
+# webrtc-server
 
 The signaling server for https://github.com/ajaybhatia/webrtc-app
 
@@ -11,6 +11,6 @@ Demo page: https://webrtc-server.herokuapp.com/
 
 # Screenshot
 
-![Join Screen](https://github.com/ajaybhatia/rewebrtc-server/blob/master/image/join.png)
+![Join Screen](https://github.com/ajaybhatia/webrtc-server/blob/master/image/join.png)
 
-![Conversation Screen](https://github.com/ajaybhatia/rewebrtc-server/blob/master/image/conversation.png)
+![Conversation Screen](https://github.com/ajaybhatia/webrtc-server/blob/master/image/conversation.png)
