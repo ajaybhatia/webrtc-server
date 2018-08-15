@@ -1,5 +1,5 @@
 {
-  "name": "rewebrtc-server",
+  "name": "webrtc-server",
   "version": "0.0.1",
   "description": "Fork of react-native-webrtc server",
   "main": "app.js",
