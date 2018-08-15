@@ -1,0 +1,21 @@
+{
+  "name": "rewebrtc-server",
+  "version": "0.0.1",
+  "description": "Fork of react-native-webrtc server",
+  "main": "app.js",
+  "author": "Ajay Bhatia",
+  "engines": {
+    "node": "v10.8.0"
+  },
+  "scripts": {
+    "open": "heroku open",
+    "logs": "heroku logs --tail",
+    "deploy": "git push heroku master",
+    "start": "node app.js"
+  },
+  "dependencies": {
+    "express": "4.16.0",
+    "open": "0.0.5",
+    "socket.io": "2.1.1"
+  }
+}
