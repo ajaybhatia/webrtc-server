@@ -2,7 +2,7 @@
 
 The signaling server for https://github.com/ajaybhatia/webrtc-app
 
-Demo page: https://webrtc-server.herokuapp.com/
+Demo page: https://webrtc-serve.herokuapp.com/
 
 # Get started
 
