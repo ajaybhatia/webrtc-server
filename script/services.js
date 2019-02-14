@@ -1,6 +1,6 @@
 var socket = io();
 
-var configuration = {"iceServers": [{"url": "stun:stun.l.google.com:19302"}]};
+var configuration = {"iceServers": [{"url": "stun.services.mozilla.com:3478"}]};
 
 var peerConnections = {}; //map of {socketId: socket.io id, RTCPeerConnection}
 var remoteViewContainer = document.getElementById("remoteViewContainer");
