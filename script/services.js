@@ -212,7 +212,11 @@ function loadLocalStream(muted) {
     function(stream) {
       localStream = stream;
       var selfView = document.getElementById("selfView");
-      selfView.srcObject = URL.createObjectURL(stream);
+      try {
+        selfView.srcObject = stream;
+      } catch (error) {
+        selfView.src = URL.createObjectURL(stream);
+      }
       selfView.muted = muted;
     },
     logError
