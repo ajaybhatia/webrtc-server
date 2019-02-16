@@ -1,7 +1,7 @@
 const DRAW_ROOM = "draw";
 
 var socket = null;
-var configuration = {"iceServers": [{"url": "stun:stun.l.google.com:19302"}]};
+var configuration = { iceServers: [{ url: "stun:stun.l.google.com:19302" }] };
 
 var peerConnections = {}; //map of {socketId: socket.io id, RTCPeerConnection}
 var remoteViewContainer = document.getElementById("remoteViewContainer");
@@ -16,49 +16,56 @@ function createPeerConnection(friend, isOffer) {
 
   peerConnections[socketId] = retVal;
 
-  retVal.onicecandidate = function (event) {
-    console.log('onicecandidate', event);
+  retVal.onicecandidate = function(event) {
+    console.log("onicecandidate", event);
     if (event.candidate) {
-      socket.emit('exchange', {'to': socketId, 'candidate': event.candidate });
+      socket.emit("exchange", { to: socketId, candidate: event.candidate });
     }
   };
 
   function createOffer() {
     retVal.createOffer(function(desc) {
-      console.log('createOffer', desc);
-      retVal.setLocalDescription(desc, function () {
-        console.log('setLocalDescription', retVal.localDescription);
-        socket.emit('exchange', {'to': socketId, 'sdp': retVal.localDescription });
-      }, logError);
+      console.log("createOffer", desc);
+      retVal.setLocalDescription(
+        desc,
+        function() {
+          console.log("setLocalDescription", retVal.localDescription);
+          socket.emit("exchange", {
+            to: socketId,
+            sdp: retVal.localDescription
+          });
+        },
+        logError
+      );
     }, logError);
   }
 
-  retVal.onnegotiationneeded = function () {
-    console.log('onnegotiationneeded');
+  retVal.onnegotiationneeded = function() {
+    console.log("onnegotiationneeded");
     if (isOffer) {
       createOffer();
     }
-  }
+  };
 
   retVal.oniceconnectionstatechange = function(event) {
-    console.log('oniceconnectionstatechange', event);
-    if (event.target.iceConnectionState === 'connected') {
+    console.log("oniceconnectionstatechange", event);
+    if (event.target.iceConnectionState === "connected") {
       createDataChannel();
     }
   };
 
   retVal.onsignalingstatechange = function(event) {
-    console.log('onsignalingstatechange', event);
+    console.log("onsignalingstatechange", event);
   };
 
-  retVal.onaddstream = function (event) {
-    console.log('onaddstream', event);
-    if(window.onFriendCallback != null) {
+  retVal.onaddstream = function(event) {
+    console.log("onaddstream", event);
+    if (window.onFriendCallback != null) {
       window.onFriendCallback(socketId, event.stream);
     }
   };
 
-  if(localStream != null) {
+  if (localStream != null) {
     retVal.addStream(localStream);
   }
 
@@ -68,25 +75,25 @@ function createPeerConnection(friend, isOffer) {
     }
     var dataChannel = retVal.createDataChannel("text");
 
-    dataChannel.onerror = function (error) {
+    dataChannel.onerror = function(error) {
       console.log("dataChannel.onerror", error);
     };
 
-    dataChannel.onmessage = function (event) {
+    dataChannel.onmessage = function(event) {
       console.log("dataChannel.onmessage:", event.data);
       try {
         let point = JSON.parse(event.data);
         drawLine(point);
-      } catch(e) {
+      } catch (e) {
         console.log("Invalid point data: ", event.data);
       }
     };
 
-    dataChannel.onopen = function () {
-      console.log('dataChannel.onopen');
+    dataChannel.onopen = function() {
+      console.log("dataChannel.onopen");
     };
 
-    dataChannel.onclose = function () {
+    dataChannel.onclose = function() {
       console.log("dataChannel.onclose");
     };
 
@@ -102,40 +109,51 @@ function exchange(data) {
   if (fromId in peerConnections) {
     pc = peerConnections[fromId];
   } else {
-    let friend = friends.filter((friend) => friend.socketId == fromId)[0];
-    if(friend == null) {
+    let friend = friends.filter(friend => friend.socketId == fromId)[0];
+    if (friend == null) {
       friend = {
         socketId: fromId,
         name: ""
-      }
+      };
     }
     pc = createPeerConnection(friend, false);
   }
 
   if (data.sdp) {
-    console.log('exchange sdp', data);
-    pc.setRemoteDescription(new RTCSessionDescription(data.sdp), function () {
-      if (pc.remoteDescription.type == "offer")
-      pc.createAnswer(function(desc) {
-        console.log('createAnswer', desc);
-        pc.setLocalDescription(desc, function () {
-          console.log('setLocalDescription', pc.localDescription);
-          socket.emit('exchange', {'to': fromId, 'sdp': pc.localDescription });
-        }, logError);
-      }, logError);
-    }, logError);
+    console.log("exchange sdp", data);
+    pc.setRemoteDescription(
+      new RTCSessionDescription(data.sdp),
+      function() {
+        if (pc.remoteDescription.type == "offer")
+          pc.createAnswer(function(desc) {
+            console.log("createAnswer", desc);
+            pc.setLocalDescription(
+              desc,
+              function() {
+                console.log("setLocalDescription", pc.localDescription);
+                socket.emit("exchange", {
+                  to: fromId,
+                  sdp: pc.localDescription
+                });
+              },
+              logError
+            );
+          }, logError);
+      },
+      logError
+    );
   } else {
-    console.log('exchange candidate', data);
+    console.log("exchange candidate", data);
     pc.addIceCandidate(new RTCIceCandidate(data.candidate));
   }
 }
 
 function leave(socketId) {
-  console.log('leave', socketId);
+  console.log("leave", socketId);
   var pc = peerConnections[socketId];
   pc.close();
   delete peerConnections[socketId];
-  if(window.onFriendLeft) {
+  if (window.onFriendLeft) {
     window.onFriendLeft(socketId);
   }
 }
@@ -147,29 +165,28 @@ function logError(error) {
 //------------------------------------------------------------------------------
 // Services
 function connectToServer() {
+  socket = io({ "force new connection": true });
 
-  socket = io({'force new connection': true });
-
-  socket.on('exchange', function(data){
+  socket.on("exchange", function(data) {
     exchange(data);
   });
 
-  socket.on('disconnect', function() {
+  socket.on("disconnect", function() {
     socket = null;
     $("#connect-to-server").show();
     $("#disconnect").hide();
     console.log("Disconnected");
   });
 
-  socket.on('connect', function(data) {
-    console.log('connect');
+  socket.on("connect", function(data) {
+    console.log("connect");
     $("#connect-to-server").hide();
     $("#disconnect").show();
     $("#connect-to-peers").show();
 
-    socket.emit('join', {roomId: DRAW_ROOM, name: ""}, function(result){
+    socket.emit("join", { roomId: DRAW_ROOM, name: "" }, function(result) {
       friends = result;
-      console.log('Friends', friends);
+      console.log("Friends", friends);
     });
   });
 
@@ -185,9 +202,13 @@ function disconnect() {
 }
 
 function loadLocalStream(muted) {
-  navigator.getUserMedia({ "audio": true, "video": true }, function (stream) {
-    localStream = stream;
-  }, logError);
+  navigator.getUserMedia(
+    { audio: true, video: true },
+    function(stream) {
+      localStream = stream;
+    },
+    logError
+  );
 }
 
 function broadcastMessage(message) {
@@ -198,9 +219,9 @@ function broadcastMessage(message) {
 }
 
 function connectToPeers() {
-  friends.forEach((friend) => {
+  friends.forEach(friend => {
     createPeerConnection(friend, true);
-  })
+  });
 }
 
 loadLocalStream();
@@ -208,7 +229,7 @@ loadLocalStream();
 let lastPoint = null;
 
 function drawLine(point) {
-  if(lastPoint == null) {
+  if (lastPoint == null) {
     lastPoint = point;
     return;
   }
@@ -217,7 +238,7 @@ function drawLine(point) {
   ctx.beginPath();
   ctx.moveTo(lastPoint.x, lastPoint.y);
   ctx.lineTo(point.x, point.y);
-  ctx.strokeStyle = '#00F';
+  ctx.strokeStyle = "#00F";
   ctx.stroke();
   lastPoint = point;
 }
@@ -229,7 +250,7 @@ function onMouseClick(event) {
   let point = {
     x: event.clientX,
     y: event.clientY
-  }
+  };
   drawLine(point);
 }
 
@@ -242,7 +263,7 @@ function onMouseOut(event) {
 }
 
 function onMouseMove(event) {
-  if(drawing) {
+  if (drawing) {
     console.log("Event: ", event);
     let point = {
       x: event.offsetX,

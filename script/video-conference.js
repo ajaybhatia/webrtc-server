@@ -4,16 +4,19 @@ const VIDEO_CONFERENCE_ROOM = "video_conference";
 loadLocalStream(true); //muted
 
 //Count number of sockets in room and change join label
-countFriends(VIDEO_CONFERENCE_ROOM, (count) => {
-  let joinLabel = "Join this conversation with " + count + " other" + (count > 1 ? "s" : "");
+countFriends(VIDEO_CONFERENCE_ROOM, count => {
+  let joinLabel =
+    "Join this conversation with " + count + " other" + (count > 1 ? "s" : "");
   $(".join-container").show();
-  $(".join-container .join-label").text(count == 0 ? "Be the first to join this conversation" : joinLabel);
+  $(".join-container .join-label").text(
+    count == 0 ? "Be the first to join this conversation" : joinLabel
+  );
 });
 
 //Join conversation
 let handleJoinConversationClick = () => {
   let name = $(".join-container .name").val();
-  if(name == null || name == "") {
+  if (name == null || name == "") {
     alert("Name cannot be empty");
     return;
   }
@@ -23,7 +26,7 @@ let handleJoinConversationClick = () => {
     $(".videos-container").show();
     $(".chat-container").show();
   });
-}
+};
 
 //Open peer connection successfully: show friend
 window.onFriendCallback = (socketId, stream) => {
@@ -34,38 +37,42 @@ window.onFriendCallback = (socketId, stream) => {
   thumbnailElement.style = "width: 30%";
   thumbnailElement.id = "friend-" + socketId;
 
-  let videoElement = document.createElement('video');
+  let videoElement = document.createElement("video");
   videoElement.className = "video thumbnail";
-  videoElement.autoplay = 'autoplay';
+  videoElement.autoplay = "autoplay";
   videoElement.src = URL.createObjectURL(stream);
   thumbnailElement.appendChild(videoElement);
 
   let nameElement = document.createElement("div");
   nameElement.className = "name";
-  nameElement.innerText = (friend != null ? friend.name : "");
+  nameElement.innerText = friend != null ? friend.name : "";
   thumbnailElement.appendChild(nameElement);
 
-  document.getElementsByClassName("videos-container")[0].appendChild(thumbnailElement);
-}
+  document
+    .getElementsByClassName("videos-container")[0]
+    .appendChild(thumbnailElement);
+};
 
-window.onDataChannelMessage = (message) => {
+window.onDataChannelMessage = message => {
   addMessage(message);
-}
+};
 
-window.onFriendLeft = (socketId) => {
+window.onFriendLeft = socketId => {
   $("#friend-" + socketId).remove();
-}
+};
 
 function handleInputChatContentKeyPress(event) {
   if (event.keyCode != 13) {
     return;
   }
-  let content = $(".input-container textarea").val().trim();
-  if(content != "") {
+  let content = $(".input-container textarea")
+    .val()
+    .trim();
+  if (content != "") {
     let message = {
       name: me.name,
       content
-    }
+    };
     broadcastMessage(message);
     addMessage(message);
   }
@@ -94,6 +101,7 @@ function addMessage(message) {
 
   //scroll to bottom
   setTimeout(() => {
-    messagesElement.scrollTop = messagesElement.scrollHeight - messagesElement.clientHeight;
+    messagesElement.scrollTop =
+      messagesElement.scrollHeight - messagesElement.clientHeight;
   }, 100);
 }
