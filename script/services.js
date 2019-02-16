@@ -1,7 +1,7 @@
 var socket = io();
 
 var configuration = {
-  iceServers: [{ url: "stun:stun.services.mozilla.com:3478" }]
+  iceServers: [{ url: "stun:stun1.l.google.com:19302" }]
 };
 
 var peerConnections = {}; //map of {socketId: socket.io id, RTCPeerConnection}
