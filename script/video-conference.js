@@ -40,7 +40,11 @@ window.onFriendCallback = (socketId, stream) => {
   let videoElement = document.createElement("video");
   videoElement.className = "video thumbnail";
   videoElement.autoplay = "autoplay";
-  videoElement.src = URL.createObjectURL(stream);
+  try {
+    videoElement.srcObject = stream;
+  } catch (error) {
+    videoElement.src = URL.createObjectURL(stream);
+  }
   thumbnailElement.appendChild(videoElement);
 
   let nameElement = document.createElement("div");
